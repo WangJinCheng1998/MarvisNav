@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MarvisNav | Project Page</title>
+    <meta
+      name="description"
+      content="Project page for MarvisNav: Making Memory Visible on Route Choices for Zero-Shot Object Navigation. Paper, code, and demos coming soon."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MarvisNav: Making Memory Visible on Route Choices for Zero-Shot Object Navigation" />
+    <meta
+      property="og:description"
+      content="A zero-shot object navigation framework that makes exploration memory visible on the route choices a VLM selects from. Coming soon."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230f766e'/%3E%3Cstop offset='1' stop-color='%2310b981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='url(%23g)'/%3E%3Cpath d='M15 46 28 26 40 38 50 18' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' opacity='.9'/%3E%3Ccircle cx='15' cy='46' r='5.5' fill='%23fbbf24'/%3E%3Ccircle cx='28' cy='26' r='4.5' fill='%23fff'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23fff'/%3E%3Ccircle cx='50' cy='18' r='5.5' fill='%23fff'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #0d1f1c;
+        --muted: #557069;
+        --line: #cde8df;
+        --paper: #f3faf7;
+        --panel: #ffffff;
+        --teal: #0d9488;
+        --teal-deep: #0f766e;
+        --emerald: #059669;
+        --mint: #5eead4;
+        --amber: #f59e0b;
+        --shadow: 0 24px 70px rgba(13, 148, 136, 0.16);
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        width: 100%;
+        padding: 16px clamp(20px, 4vw, 64px);
+        margin: 0 auto;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-width: 0 0 1px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(226, 246, 239, 0.5)),
+          rgba(243, 250, 247, 0.62);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.82),
+          0 18px 48px rgba(13, 148, 136, 0.09);
+        backdrop-filter: blur(24px) saturate(175%);
+        -webkit-backdrop-filter: blur(24px) saturate(175%);
+        transition:
+          width 260ms ease,
+          transform 260ms ease,
+          padding 260ms ease,
+          border-radius 260ms ease,
+          box-shadow 260ms ease;
+      }
+
+      .site-header.is-condensed {
+        width: min(820px, calc(100% - 40px));
+        padding: 9px 16px;
+        border-width: 1px;
+        border-radius: 24px;
+        transform: translateY(12px);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 22px 58px rgba(13, 148, 136, 0.15),
+          0 6px 18px rgba(13, 31, 28, 0.07);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        min-width: max-content;
+        font-size: 1.06rem;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        display: block;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        background: linear-gradient(135deg, var(--teal-deep) 0%, #10b981 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.35),
+          0 10px 24px rgba(13, 148, 136, 0.28);
+        transition:
+          width 260ms ease,
+          height 260ms ease;
+      }
+
+      .site-header.is-condensed .brand-mark {
+        width: 38px;
+        height: 38px;
+      }
+
+      .brand-mark svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .brand-mark path {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.9);
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .brand-mark circle {
+        fill: #ffffff;
+      }
+
+      .brand-mark .brand-start {
+        fill: #fbbf24;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+        border: 1px solid rgba(13, 148, 136, 0.22);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--teal-deep);
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        padding: 10px 14px;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .pulse {
+        position: relative;
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--amber);
+      }
+
+      .pulse::after {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--amber);
+        content: "";
+        animation: pulse-dot 2s ease-out infinite;
+      }
+
+      main {
+        flex: 1 0 auto;
+        overflow: hidden;
+      }
+
+      .hero {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+        column-gap: clamp(24px, 4vw, 64px);
+        align-content: start;
+        min-height: min(720px, calc(100vh - 77px));
+        padding: clamp(48px, 7vw, 86px) clamp(20px, 5vw, 76px) 56px;
+        border-bottom: 1px solid var(--line);
+        overflow: hidden;
+        isolation: isolate;
+        background:
+          radial-gradient(56% 70% at 90% 16%, rgba(94, 234, 212, 0.3), transparent 64%),
+          radial-gradient(48% 60% at 66% 100%, rgba(16, 185, 129, 0.16), transparent 68%),
+          radial-gradient(36% 46% at 0% 0%, rgba(245, 158, 11, 0.08), transparent 62%),
+          linear-gradient(180deg, #fbfefd 0%, #edf8f3 100%);
+      }
+
+      .hero::before {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background-image: radial-gradient(rgba(15, 118, 110, 0.16) 1px, transparent 1.4px);
+        background-size: 26px 26px;
+        content: "";
+        mask-image: linear-gradient(100deg, transparent 30%, #000 100%);
+        -webkit-mask-image: linear-gradient(100deg, transparent 30%, #000 100%);
+        pointer-events: none;
+      }
+
+      .hero-art {
+        position: relative;
+        grid-column: 2;
+        grid-row: 2;
+        align-self: center;
+        justify-self: end;
+        width: 100%;
+        max-width: 640px;
+        height: auto;
+        margin-top: 12px;
+        pointer-events: none;
+      }
+
+      .art-edges path {
+        fill: none;
+        stroke: rgba(15, 118, 110, 0.3);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+      }
+
+      .art-route,
+      .art-route-flow {
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .art-route {
+        stroke: url(#routeGradient);
+        stroke-width: 6;
+      }
+
+      .art-route-flow {
+        stroke: rgba(255, 255, 255, 0.85);
+        stroke-width: 2.5;
+        stroke-dasharray: 2 18;
+        animation: route-flow 1.8s linear infinite;
+      }
+
+      .node.unexplored circle {
+        fill: #ffffff;
+        stroke: rgba(85, 112, 105, 0.6);
+        stroke-width: 2.5;
+        stroke-dasharray: 3.5 3;
+      }
+
+      .node.partial circle {
+        fill: #ffffff;
+        stroke: var(--teal);
+        stroke-width: 2.5;
+      }
+
+      .node.partial path {
+        fill: var(--teal);
+      }
+
+      .node.visited circle {
+        fill: var(--teal-deep);
+        stroke: #ffffff;
+        stroke-width: 2.5;
+      }
+
+      .node.target circle {
+        fill: #10b981;
+        stroke: #ffffff;
+        stroke-width: 3;
+      }
+
+      .node.target .target-ring {
+        fill: none;
+        stroke: #10b981;
+        stroke-width: 2.5;
+        stroke-dasharray: 5 5;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: ring-spin 14s linear infinite;
+      }
+
+      .node.start circle {
+        fill: var(--amber);
+        stroke: #ffffff;
+        stroke-width: 3;
+      }
+
+      .node.start .start-ring {
+        fill: none;
+        stroke: var(--amber);
+        stroke-width: 2;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: pulse-ring 2.2s ease-out infinite;
+      }
+
+      .hero-head {
+        position: relative;
+        grid-column: 1 / -1;
+      }
+
+      .hero-copy {
+        position: relative;
+        grid-column: 1;
+        grid-row: 2;
+        min-width: 0;
+      }
+
+      .venue {
+        display: inline-flex;
+        align-items: center;
+        margin: 0 0 18px;
+        border: 1px solid rgba(13, 148, 136, 0.26);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--teal-deep);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        line-height: 1;
+        padding: 8px 13px;
+        text-transform: uppercase;
+      }
+
+      h1,
+      p {
+        overflow-wrap: anywhere;
+      }
+
+      h1 {
+        max-width: 980px;
+        margin: 0;
+        padding-bottom: 0.08em;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: clamp(2.5rem, 5.4vw, 5.1rem);
+        font-weight: 650;
+        line-height: 1.02;
+        letter-spacing: 0;
+        background: linear-gradient(115deg, #0a1c19 0%, #0f766e 40%, #059669 74%, #14b8a6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .subtitle {
+        max-width: 700px;
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: clamp(1.06rem, 2vw, 1.28rem);
+        line-height: 1.7;
+      }
+
+      .author-list {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 10px 20px;
+        margin-top: 28px;
+      }
+
+      .author {
+        color: var(--teal-deep);
+        font-size: 1.04rem;
+        font-weight: 750;
+        white-space: nowrap;
+      }
+
+      .author sup,
+      .affiliations sup {
+        margin-left: 1px;
+        color: var(--muted);
+        font-size: 0.72em;
+        font-weight: 600;
+        line-height: 0;
+      }
+
+      .affiliations {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 20px;
+        max-width: 760px;
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+
+      .affiliations sup {
+        margin: 0 2px 0 0;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 34px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        gap: 9px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.95rem;
+        font-weight: 800;
+        padding: 12px 16px;
+        transition:
+          transform 160ms ease,
+          border-color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .button:hover {
+        border-color: rgba(13, 148, 136, 0.4);
+        box-shadow: 0 12px 28px rgba(13, 148, 136, 0.14);
+        transform: translateY(-1px);
+      }
+
+      .button.primary {
+        border-color: transparent;
+        background: linear-gradient(135deg, #0f766e 0%, #0d9488 48%, #10b981 100%);
+        color: #fff;
+      }
+
+      .button[aria-disabled="true"] {
+        cursor: default;
+      }
+
+      .button[aria-disabled="true"]:hover {
+        border-color: var(--line);
+        box-shadow: none;
+        transform: none;
+      }
+
+      .button.primary[aria-disabled="true"]:hover {
+        border-color: transparent;
+      }
+
+      .button svg {
+        width: 18px;
+        height: 18px;
+        flex: 0 0 auto;
+      }
+
+      .button .icon {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .github-mark {
+        fill: currentColor;
+      }
+
+      .soon-tag {
+        border-radius: 999px;
+        background: rgba(13, 148, 136, 0.11);
+        color: var(--teal-deep);
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        padding: 4px 7px;
+        text-transform: uppercase;
+      }
+
+      .button.primary .soon-tag {
+        background: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+      }
+
+      .soon-band {
+        padding: 26px clamp(20px, 5vw, 76px);
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .soon-band p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1.02rem;
+        text-align: center;
+      }
+
+      .soon-band .pulse {
+        margin-right: 8px;
+        vertical-align: 0.1em;
+      }
+
+      .soon-band strong {
+        color: var(--teal-deep);
+        font-weight: 800;
+      }
+
+      footer {
+        padding: 26px clamp(20px, 5vw, 76px);
+        color: var(--muted);
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      footer p {
+        margin: 0;
+      }
+
+      @keyframes pulse-dot {
+        0% {
+          opacity: 0.7;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(3.2);
+        }
+      }
+
+      @keyframes pulse-ring {
+        0% {
+          opacity: 0.8;
+          transform: scale(0.6);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.7);
+        }
+      }
+
+      @keyframes ring-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes route-flow {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+
+      @media (min-width: 1280px) {
+        .hero-head {
+          grid-column: 1;
+        }
+
+        .hero-art {
+          grid-row: 1 / span 2;
+          margin-top: 0;
+        }
+
+        h1 {
+          font-size: clamp(3.6rem, 4.7vw, 4.8rem);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .hero {
+          grid-template-columns: minmax(0, 1fr);
+          min-height: 0;
+          padding-bottom: 36px;
+        }
+
+        .hero-art {
+          grid-column: 1;
+          grid-row: 3;
+          justify-self: center;
+          max-width: 520px;
+          margin: 28px 0 0;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .site-header {
+          gap: 12px;
+          padding: 12px 16px;
+        }
+
+        .brand-mark {
+          width: 38px;
+          height: 38px;
+        }
+
+        .status-pill {
+          font-size: 0.7rem;
+          padding: 8px 11px;
+        }
+
+        .hero {
+          padding-top: 36px;
+          padding-inline: 16px;
+        }
+
+        h1 {
+          font-size: clamp(2.05rem, 9.4vw, 2.6rem);
+          line-height: 1.06;
+        }
+
+        .author-list {
+          gap: 8px 16px;
+        }
+
+        .affiliations {
+          flex-direction: column;
+        }
+
+        .actions .button {
+          flex: 1 1 auto;
+        }
+
+        .actions .email-button {
+          flex-basis: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .pulse::after,
+        .art-route-flow,
+        .node.target .target-ring,
+        .node.start .start-ring {
+          animation: none;
+        }
+
+        .node.start .start-ring {
+          opacity: 0.5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Project home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <path d="M15 46 28 26 40 38 50 18" />
+            <circle class="brand-start" cx="15" cy="46" r="5.5" />
+            <circle cx="28" cy="26" r="4.5" />
+            <circle cx="40" cy="38" r="4.5" />
+            <circle cx="50" cy="18" r="5.5" />
+          </svg>
+        </span>
+        <span>MarvisNav</span>
+      </a>
+      <p class="status-pill">
+        <span class="pulse" aria-hidden="true"></span>
+        Coming soon
+      </p>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <svg class="hero-art" viewBox="0 0 640 520" aria-hidden="true">
+          <defs>
+            <linearGradient id="routeGradient" x1="86" y1="446" x2="548" y2="188" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#f59e0b" />
+              <stop offset="0.22" stop-color="#0d9488" />
+              <stop offset="1" stop-color="#10b981" />
+            </linearGradient>
+            <radialGradient id="targetGlow">
+              <stop offset="0" stop-color="#34d399" stop-opacity="0.5" />
+              <stop offset="1" stop-color="#34d399" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="startGlow">
+              <stop offset="0" stop-color="#fbbf24" stop-opacity="0.45" />
+              <stop offset="1" stop-color="#fbbf24" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <circle cx="548" cy="188" r="84" fill="url(#targetGlow)" />
+          <circle cx="86" cy="446" r="64" fill="url(#startGlow)" />
+
+          <g class="art-edges">
+            <path d="M170 372 268 418" />
+            <path d="M246 286 136 246" />
+            <path d="M268 418 372 344" />
+            <path d="M372 344 344 226" />
+            <path d="M372 344 474 396" />
+            <path d="M452 268 474 396" />
+            <path d="M344 226 306 108" />
+            <path d="M306 108 430 118" />
+            <path d="M306 108 196 142" />
+            <path d="M136 246 196 142" />
+            <path d="M430 118 548 188" />
+            <path d="M474 396 580 330" />
+            <path d="M548 188 580 330" />
+            <path d="M268 418 350 474" />
+          </g>
+
+          <path class="art-route" d="M86 446 170 372 246 286 344 226 452 268 548 188" />
+          <path class="art-route-flow" d="M86 446 170 372 246 286 344 226 452 268 548 188" />
+
+          <g class="art-nodes">
+            <g class="node unexplored">
+              <circle cx="474" cy="396" r="8" />
+              <circle cx="430" cy="118" r="8" />
+              <circle cx="196" cy="142" r="8" />
+              <circle cx="580" cy="330" r="8" />
+              <circle cx="350" cy="474" r="8" />
+            </g>
+            <g class="node partial">
+              <circle cx="136" cy="246" r="8" />
+              <path d="M136 238a8 8 0 0 1 0 16Z" />
+              <circle cx="372" cy="344" r="8" />
+              <path d="M372 336a8 8 0 0 1 0 16Z" />
+              <circle cx="306" cy="108" r="8" />
+              <path d="M306 100a8 8 0 0 1 0 16Z" />
+              <circle cx="452" cy="268" r="8" />
+              <path d="M452 260a8 8 0 0 1 0 16Z" />
+            </g>
+            <g class="node visited">
+              <circle cx="170" cy="372" r="8" />
+              <circle cx="268" cy="418" r="8" />
+              <circle cx="246" cy="286" r="8" />
+              <circle cx="344" cy="226" r="8" />
+            </g>
+            <g class="node target">
+              <circle class="target-ring" cx="548" cy="188" r="20" />
+              <circle cx="548" cy="188" r="10" />
+            </g>
+            <g class="node start">
+              <circle class="start-ring" cx="86" cy="446" r="18" />
+              <circle cx="86" cy="446" r="10" />
+            </g>
+          </g>
+        </svg>
+
+        <div class="hero-head">
+          <p class="venue">Under Review</p>
+          <h1>MarvisNav: Making Memory Visible on Route Choices for Zero-Shot Object Navigation</h1>
+          <p class="subtitle">
+            A zero-shot object navigation framework that draws topological exploration memory
+            directly onto the egocentric route choices a VLM selects from.
+          </p>
+        </div>
+
+        <div class="hero-copy">
+          <div class="author-list" aria-label="Authors">
+            <span class="author">Jincheng Wang<sup>1</sup></span>
+            <span class="author">Chi Pui Chan<sup>1</sup></span>
+            <span class="author">Wei Zeng<sup>2</sup></span>
+            <span class="author">Shuyang Zhang<sup>3</sup></span>
+            <span class="author">Jianhao Jiao<sup>2*</sup></span>
+            <span class="author">Dimitrios Kanoulas<sup>1</sup></span>
+          </div>
+
+          <div class="affiliations">
+            <span><sup>1</sup>University College London, University of London</span>
+            <span><sup>2</sup>China Merchants Group, LionRock AI Lab</span>
+            <span><sup>3</sup>Shenzhen University</span>
+            <span><sup>*</sup>Corresponding Author</span>
+          </div>
+
+          <div class="actions" aria-label="Project links">
+            <span class="button primary" aria-disabled="true">
+              <svg class="github-mark" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.53-1.34-1.3-1.7-1.3-1.7-1.06-.73.08-.72.08-.72 1.18.08 1.8 1.21 1.8 1.21 1.04 1.79 2.73 1.27 3.4.97.1-.76.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.2-3.08-.12-.29-.52-1.46.11-3.04 0 0 .98-.31 3.2 1.18.93-.26 1.93-.39 2.93-.39s2 .13 2.93.39c2.22-1.49 3.2-1.18 3.2-1.18.63 1.58.23 2.75.11 3.04.75.8 1.2 1.82 1.2 3.08 0 4.42-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.68.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+              </svg>
+              Code
+              <span class="soon-tag">Soon</span>
+            </span>
+            <span class="button" aria-disabled="true">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                <path d="M10 9H8" />
+                <path d="M16 13H8" />
+                <path d="M16 17H8" />
+              </svg>
+              Paper
+              <span class="soon-tag">Soon</span>
+            </span>
+            <span class="button" aria-disabled="true">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 3h6v6" />
+                <path d="M10 14 21 3" />
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              </svg>
+              arXiv
+              <span class="soon-tag">Soon</span>
+            </span>
+            <a class="button email-button" href="mailto:wangjc365@gmail.com">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              wangjc365@gmail.com
+            </a>
+            <a class="button email-button" href="mailto:jiaojh1994@gmail.com">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              jiaojh1994@gmail.com
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="soon-band" aria-label="Release status">
+        <p>
+          <span class="pulse" aria-hidden="true"></span>
+          Paper, code, and demo videos are <strong>coming soon</strong>.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <p>Designed by Jincheng Wang · MarvisNav · 2026</p>
+    </footer>
+
+    <script>
+      const siteHeader = document.querySelector(".site-header");
+      // Shrinking the header shortens the page, so use two thresholds to avoid flicker on short pages.
+      const updateHeaderState = () => {
+        const condensed = siteHeader.classList.contains("is-condensed");
+        siteHeader.classList.toggle("is-condensed", window.scrollY > (condensed ? 16 : 56));
+      };
+      updateHeaderState();
+      window.addEventListener("scroll", updateHeaderState, { passive: true });
+    </script>
+  </body>
+</html>
