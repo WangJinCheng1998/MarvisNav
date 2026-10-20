@@ -379,7 +379,7 @@ h3 { font: 600 1.16rem/1.25 var(--font-display); letter-spacing: -.02em; }
 .story__steps { position: relative; padding: 4px 0 0 52px; }
 .story__rail { position: absolute; left: 15px; top: 20px; bottom: 0; width: 2px; border-radius: 2px; background: var(--line-2); overflow: hidden; }
 .story__rail i { position: absolute; inset: 0; background: linear-gradient(180deg, #2DD4BF, var(--accent) 40%, #0284C7); transform-origin: 50% 0; transform: scaleY(var(--p, 0)); }
-.story__step { position: relative; min-height: 66vh; padding-bottom: 40px; transition: opacity .5s ease; }
+.story__step { position: relative; padding-bottom: clamp(80px, 12vh, 140px); transition: opacity .5s ease; }
 .js .story__step { opacity: .34; }
 .js .story__step.is-on { opacity: 1; }
 .story__step:last-child { min-height: 0; padding-bottom: 0; }
@@ -619,7 +619,6 @@ h3 { font: 600 1.16rem/1.25 var(--font-display); letter-spacing: -.02em; }
   .story__steps { padding: 26px 0 0 44px; }
   .story__rail { left: 13px; top: 42px; }
   .story__num { left: -44px; width: 28px; height: 28px; font-size: .78rem; }
-  .story__step { min-height: 58vh; }
   .story__step:last-child { padding-bottom: 30vh; }
   .story__hd { padding: 4px 4px 8px 6px; }
   .story__tag { display: none; }
@@ -1995,14 +1994,17 @@ h3 { font: 600 1.16rem/1.25 var(--font-display); letter-spacing: -.02em; }
   function storyPaint() {
     if (!panel || !stepEls.length) return;
     var vh = window.innerHeight, wide = window.innerWidth >= 900, pb = panel.getBoundingClientRect().bottom;
-    var line = wide ? vh * 0.5 : Math.min(vh * 0.86, pb + (vh - pb) * 0.3);
+    var stickTop = parseFloat(window.getComputedStyle(panel.parentNode).top) || 0;
+    // wide: the step beside the panel is the one being read, and the next takes over when its heading reaches the
+    // panel's top row (the step pills); narrow: 30% down the space under the panel
+    var line = wide ? stickTop + 40 : Math.min(vh * 0.86, pb + (vh - pb) * 0.3);
     var tops = stepEls.map(function (s) { return s.getBoundingClientRect().top; }), act = 0;
     tops.forEach(function (t, i) { if (t <= line) act = i; });
     var p = clamp((line - tops[0]) / ((tops[tops.length - 1] - tops[0]) || 1), 0, 1);
     // the last step stays long enough for the panel to remain fully in view while it is read
     var last = stepEls[stepEls.length - 1];
     if (wide) {
-      var stickTop = parseFloat(window.getComputedStyle(panel.parentNode).top) || 0, want = Math.max(0, Math.round(stickTop + panel.offsetHeight - line + 48)) + 'px';
+      var want = Math.max(0, Math.round(stickTop + panel.offsetHeight - line + 48)) + 'px';
       if (last.style.minHeight !== want) last.style.minHeight = want;
     } else if (last.style.minHeight) last.style.minHeight = '';
     if (rail) { rail.style.setProperty('--p', p.toFixed(4)); rail.style.bottom = Math.max(0, last.offsetHeight - 16) + 'px'; }
