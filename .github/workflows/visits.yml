@@ -1,0 +1,94 @@
+# Once a day (and by hand: Actions > Update the visitor numbers > Run workflow), reads the page's view counters from
+# Abacus and writes assets/visits.json on the gh-pages branch, which GitHub Pages publishes. The footer's visitor note
+# reads that file; until it has views in it, the note stays hidden.
+#
+# The page counts with Abacus (https://abacus.jasoncameron.dev, free, no account): +1 to "views" each time it is
+# opened, +1 to "cc-<country>" for the country or region of the visitor's time zone. This reads one counter per code a
+# time zone can give (the list is in index.html, VISITS_MAP.cc), slowly enough for Abacus's limit of 30 requests in
+# 10 seconds. If Abacus cannot be reached, the numbers already on the site stay as they are.
+name: Update the visitor numbers
+
+on:
+  schedule:
+    - cron: '23 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: visits
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+
+      - name: Read the counters
+        env:
+          COUNTERS: https://abacus.jasoncameron.dev/get/wangjincheng1998-marvisnav/
+          SINCE: '2026-10-28'
+        run: |
+          python3 - <<'EOF'
+          import datetime, json, os, re, time, urllib.error, urllib.request
+          env = os.environ
+
+          def count(key):
+              for attempt in range(4):
+                  try:
+                      req = urllib.request.Request(env['COUNTERS'] + key, headers={'Accept': 'application/json', 'User-Agent': 'marvisnav-visits'})
+                      with urllib.request.urlopen(req, timeout=20) as r:
+                          return int(json.load(r).get('value') or 0)
+                  except urllib.error.HTTPError as e:
+                      if e.code == 404:                 # never counted
+                          return 0
+                      if e.code == 429:                 # too fast: wait as asked
+                          time.sleep(int(e.headers.get('Retry-After') or 10) + 1)
+                          continue
+                      raise
+              raise RuntimeError('Abacus kept asking to slow down')
+
+          try:
+              codes = re.search(r"cc: '([A-Z ]+)'", open('index.html', encoding='utf-8').read()).group(1).split()
+              total = count('views')
+              places = []
+              for cc in codes:
+                  time.sleep(0.4)
+                  n = count('cc-' + cc.lower())
+                  if n > 0:
+                      places.append({'id': cc, 'count': n})
+          except Exception as e:
+              print('Abacus not reached, the numbers on the site stay as they are:', e)
+          else:
+              try:
+                  old = json.load(open('assets/visits.json'))
+              except Exception:
+                  old = {}
+              if total > 0 and (old.get('total'), old.get('places')) == (total, places):
+                  print('no change since the last update')
+              elif total > 0:
+                  data = {'since': env['SINCE'], 'total': total, 'places': places,
+                          'updated': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}
+                  with open('assets/visits.json', 'w') as f:
+                      json.dump(data, f, separators=(',', ':'))
+                  print('views:', total, 'countries and regions:', len(places))
+              else:
+                  print('no views yet: the note stays hidden')
+          EOF
+
+      - name: Publish them
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f assets/visits.json ] || exit 0
+          git add assets/visits.json
+          if git diff --cached --quiet; then echo 'no change'; exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'Update the visitor numbers'
+          git push origin HEAD:gh-pages
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" > /dev/null || echo 'Pages builds the push on its own'
